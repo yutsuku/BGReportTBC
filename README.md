@@ -1,7 +1,7 @@
 BGReport - a World of Warcraft (2.4.3) AddOn
 ===================================================
 
-[![Watch the video](docs/preview.png?raw=true)](docs/preview.webm)
+[![Watch the video](https://github.com/yutsuku/BGReportTBC/blob/master/docs/preview.jpg)](https://github.com/yutsuku/BGReportTBC/blob/master/docs/preview.webm)
 
 Installation:
 
