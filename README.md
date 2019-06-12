@@ -1,6 +1,8 @@
 BGReport - a World of Warcraft (2.4.3) AddOn
 ===================================================
 
+[![Watch the video](docs/preview.png?raw=true)](docs/preview.webm)
+
 Installation:
 
 Put "BGReport" folder into ".../World of Warcraft/Interface/AddOns/".
