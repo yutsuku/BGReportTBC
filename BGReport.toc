@@ -1,4 +1,4 @@
-## Interface: 11200
+## Interface: 20400
 ## Title: BGReport
 ## Version: 1.0
 ## Author: moh

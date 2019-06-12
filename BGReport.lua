@@ -5,14 +5,16 @@ BINDING_NAME_BGREPORT1 = "Toggle menu";
 local BATTLEGROUND_ID = {
 	['Warsong Gulch'] = 1,
 	['Arathi Basin'] = 2,
-	['Alterac Valley'] = 3
+	['Alterac Valley'] = 3,
+	['Eye of the Storm'] = 4,
 }
 
 -- those are okay to localize if needed
 local BATTLEGROUND_NAME = {
 	[1] = 'Warsong Gulch',
 	[2] = 'Arathi Basin',
-	[3] = 'Alterac Valley'
+	[3] = 'Alterac Valley',
+	[4] = 'Eye of the Storm'
 }
 
 local BUTTON_LABELS = {
@@ -109,7 +111,45 @@ local BUTTON_LABELS = {
 			'West Tower',
 			'Relief Hut'
 		}
-	}
+	},
+	[BATTLEGROUND_ID['Eye of the Storm']] = {
+		[0] = {
+			'Draenei Ruins',
+			'Mage Tower',
+			'Fel Reaver Ruins',
+			'Blood Elf Tower'
+		},
+		[1] = {
+			'2',
+			'1',
+			'5',
+			'3'
+		},
+		[2] = {
+			'2',
+			'1',
+			'5',
+			'3'
+		},
+		[3] = {
+			'2',
+			'1',
+			'5',
+			'3'
+		},
+		[4] = {
+			'2',
+			'1',
+			'5',
+			'3'
+		},
+		[5] = {
+			'2',
+			'1',
+			'5',
+			'3'
+		}
+	},
 }
 --[[
 local BUTTONS = {
@@ -266,8 +306,8 @@ function Item:SetLabel(text)
 	return self
 end
 
-function Item:SetTexCoord(left, right, top, bottom)
-	self.texCoord = {left, right, top, bottom}
+function Item:SetTexCoord(left, right, top, bottom, URx, URy, LRx, LRy)
+	self.texCoord = {left, right, top, bottom, URx, URy, LRx, LRy}
 	return self
 end
 
@@ -314,6 +354,23 @@ end
 
 local bgr = {}
 local lineVec = Vector2D:new(0, 0)
+
+function bgr:RotateTexture(tex, degrees)
+	local s2 = sqrt(2)
+	local cos, sin, rad = math.cos, math.sin, math.rad
+	local function CalculateCorner(angle)
+		local r = rad(angle)
+		return 0.5 + cos(r) / s2, 0.5 + sin(r) / s2
+	end
+	local LRx, LRy = CalculateCorner(degrees + 45)
+	local LLx, LLy = CalculateCorner(degrees + 135)
+	local ULx, ULy = CalculateCorner(degrees + 225)
+	local URx, URy = CalculateCorner(degrees - 45)
+	
+	tex:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy)
+	
+	return ULx, ULy, LLx, LLy, URx, URy, LRx, LRy
+end
 
 bgr.StartPos = Vector2D:new(UIParent:GetWidth()/2, UIParent:GetHeight()/2)
 bgr.EndPos = Vector2D:new(0, 0)
@@ -432,6 +489,8 @@ function bgr:InBattleground()
 		return BATTLEGROUND_ID['Arathi Basin']
 	elseif ( zone == BATTLEGROUND_NAME[ BATTLEGROUND_ID['Warsong Gulch'] ] ) then
 		return BATTLEGROUND_ID['Warsong Gulch']
+	elseif ( zone == BATTLEGROUND_NAME[ BATTLEGROUND_ID['Eye of the Storm'] ] ) then
+		return BATTLEGROUND_ID['Eye of the Storm']
 	end
 	
 	return 0
@@ -1028,6 +1087,238 @@ function bgr:SetConfiguration(configuration, level)
 			self.ItemsSpecial[1]:SetTexture([[Interface\AddOns\BGReport\textures\dot-active]])
 			self:UpdateLabel(self.ItemsSpecial[1], 0, 0)
 		end
+	elseif configuration == 'eots' then
+		if level then
+			if level == 1 then
+				-- belf tower
+				bgr:SetDivider(45)
+				bgr:SetStartAngle(0)
+				bgr:SetMaxItemCount(4)
+				
+				local macros = {
+					'/bg belf tower 2',
+					'/bg belf tower 1',
+					'/bg belf tower 5',
+					'/bg belf tower 3',
+				}
+				
+				local buttonAngle = self:GetStartAngle()
+				local x, y;
+				x = 0;
+				y = 0;
+				
+				self.gui.frame.texture:SetTexture([[Interface\AddOns\BGReport\textures\4]])
+				self.gui.frame.texture:SetTexCoord(0, 1, 0, 1)
+				
+				for index = 1, 4 do
+					self.Items[index] = Item:new(index)
+					self.Items[index]:SetMacro(macros[index])
+					self.Items[index]:SetLabel(BUTTON_LABELS[BATTLEGROUND_ID['Eye of the Storm']][level][index])
+					self.Items[index]:SetTexture('Interface\\AddOns\\BGReport\\textures\\4-'..index)
+					self.Items[index]:SetTexCoord(0, 1, 0, 1)
+					
+					if ( self.Items[index]:GetLabel() ~= '' ) then
+						self:UpdateLabel(self.Items[index], x + (itemOffset * cos(-buttonAngle)), y + (itemOffset * sin(-buttonAngle)) )
+						buttonAngle = buttonAngle - (360 / 4)
+					end
+				end
+
+				self.ItemsSpecial[1] = Item:new()
+				self.ItemsSpecial[1]:SetTexture([[Interface\AddOns\BGReport\textures\dot-active]])
+				self.ItemsSpecial[1]:SetLabel('...')
+				self.ItemsSpecial[1]:SetScript('self:SetConfiguration("eots")')
+				self:UpdateLabel(self.ItemsSpecial[1], 0, 0)
+			elseif level == 2 then
+				bgr:SetDivider(45)
+				bgr:SetStartAngle(0)
+				bgr:SetMaxItemCount(4)
+				
+				local macros = {
+					'/bg draenei ruins 2',
+					'/bg draenei ruins 1',
+					'/bg draenei ruins 5',
+					'/bg draenei ruins 3',
+				}
+				
+				local buttonAngle = self:GetStartAngle()
+				local x, y;
+				x = 0;
+				y = 0;
+				
+				self.gui.frame.texture:SetTexture([[Interface\AddOns\BGReport\textures\4]])
+				self.gui.frame.texture:SetTexCoord(0, 1, 0, 1)
+				
+				for index = 1, 4 do
+					self.Items[index] = Item:new(index)
+					self.Items[index]:SetMacro(macros[index])
+					self.Items[index]:SetLabel(BUTTON_LABELS[BATTLEGROUND_ID['Eye of the Storm']][level][index])
+					self.Items[index]:SetTexture('Interface\\AddOns\\BGReport\\textures\\4-'..index)
+					self.Items[index]:SetTexCoord(0, 1, 0, 1)
+					
+					if ( self.Items[index]:GetLabel() ~= '' ) then
+						self:UpdateLabel(self.Items[index], x + (itemOffset * cos(-buttonAngle)), y + (itemOffset * sin(-buttonAngle)) )
+						buttonAngle = buttonAngle - (360 / 4)
+					end
+				end
+
+				self.ItemsSpecial[1] = Item:new()
+				self.ItemsSpecial[1]:SetTexture([[Interface\AddOns\BGReport\textures\dot-active]])
+				self.ItemsSpecial[1]:SetLabel('...')
+				self.ItemsSpecial[1]:SetScript('self:SetConfiguration("eots")')
+				self:UpdateLabel(self.ItemsSpecial[1], 0, 0)
+			elseif level == 3 then
+				bgr:SetDivider(45)
+				bgr:SetStartAngle(0)
+				bgr:SetMaxItemCount(4)
+				
+				local macros = {
+					'/bg mage tower 2',
+					'/bg mage tower 1',
+					'/bg mage tower 5',
+					'/bg mage tower 3',
+				}
+				
+				local buttonAngle = self:GetStartAngle()
+				local x, y;
+				x = 0;
+				y = 0;
+				
+				self.gui.frame.texture:SetTexture([[Interface\AddOns\BGReport\textures\4]])
+				self.gui.frame.texture:SetTexCoord(0, 1, 0, 1)
+				
+				for index = 1, 4 do
+					self.Items[index] = Item:new(index)
+					self.Items[index]:SetMacro(macros[index])
+					self.Items[index]:SetLabel(BUTTON_LABELS[BATTLEGROUND_ID['Eye of the Storm']][level][index])
+					self.Items[index]:SetTexture('Interface\\AddOns\\BGReport\\textures\\4-'..index)
+					self.Items[index]:SetTexCoord(0, 1, 0, 1)
+					
+					if ( self.Items[index]:GetLabel() ~= '' ) then
+						self:UpdateLabel(self.Items[index], x + (itemOffset * cos(-buttonAngle)), y + (itemOffset * sin(-buttonAngle)) )
+						buttonAngle = buttonAngle - (360 / 4)
+					end
+				end
+
+				self.ItemsSpecial[1] = Item:new()
+				self.ItemsSpecial[1]:SetTexture([[Interface\AddOns\BGReport\textures\dot-active]])
+				self.ItemsSpecial[1]:SetLabel('...')
+				self.ItemsSpecial[1]:SetScript('self:SetConfiguration("eots")')
+				self:UpdateLabel(self.ItemsSpecial[1], 0, 0)
+			elseif level == 4 then
+				bgr:SetDivider(45)
+				bgr:SetStartAngle(0)
+				bgr:SetMaxItemCount(4)
+				
+				local macros = {
+					'/bg fel reaver 2',
+					'/bg fel reaver 1',
+					'/bg fel reaver 5',
+					'/bg fel reaver 3',
+				}
+				
+				local buttonAngle = self:GetStartAngle()
+				local x, y;
+				x = 0;
+				y = 0;
+				
+				self.gui.frame.texture:SetTexture([[Interface\AddOns\BGReport\textures\4]])
+				self.gui.frame.texture:SetTexCoord(0, 1, 0, 1)
+				
+				for index = 1, 4 do
+					self.Items[index] = Item:new(index)
+					self.Items[index]:SetMacro(macros[index])
+					self.Items[index]:SetLabel(BUTTON_LABELS[BATTLEGROUND_ID['Eye of the Storm']][level][index])
+					self.Items[index]:SetTexture('Interface\\AddOns\\BGReport\\textures\\4-'..index)
+					self.Items[index]:SetTexCoord(0, 1, 0, 1)
+					
+					if ( self.Items[index]:GetLabel() ~= '' ) then
+						self:UpdateLabel(self.Items[index], x + (itemOffset * cos(-buttonAngle)), y + (itemOffset * sin(-buttonAngle)) )
+						buttonAngle = buttonAngle - (360 / 4)
+					end
+				end
+
+				self.ItemsSpecial[1] = Item:new()
+				self.ItemsSpecial[1]:SetTexture([[Interface\AddOns\BGReport\textures\dot-active]])
+				self.ItemsSpecial[1]:SetLabel('...')
+				self.ItemsSpecial[1]:SetScript('self:SetConfiguration("eots")')
+				self:UpdateLabel(self.ItemsSpecial[1], 0, 0)
+			elseif level == 5 then
+				-- flag
+				bgr:SetDivider(45)
+				bgr:SetStartAngle(0)
+				bgr:SetMaxItemCount(4)
+				
+				local macros = {
+					'/bg flag 2',
+					'/bg flag 1',
+					'/bg flag 5',
+					'/bg flag 3',
+				}
+				
+				local buttonAngle = self:GetStartAngle()
+				local x, y;
+				x = 0;
+				y = 0;
+				
+				self.gui.frame.texture:SetTexture([[Interface\AddOns\BGReport\textures\4]])
+				self.gui.frame.texture:SetTexCoord(0, 1, 0, 1)
+				
+				for index = 1, 4 do
+					self.Items[index] = Item:new(index)
+					self.Items[index]:SetMacro(macros[index])
+					self.Items[index]:SetLabel(BUTTON_LABELS[BATTLEGROUND_ID['Eye of the Storm']][level][index])
+					self.Items[index]:SetTexture('Interface\\AddOns\\BGReport\\textures\\4-'..index)
+					self.Items[index]:SetTexCoord(0, 1, 0, 1)
+					
+					if ( self.Items[index]:GetLabel() ~= '' ) then
+						self:UpdateLabel(self.Items[index], x + (itemOffset * cos(-buttonAngle)), y + (itemOffset * sin(-buttonAngle)) )
+						buttonAngle = buttonAngle - (360 / 4)
+					end
+				end
+
+				self.ItemsSpecial[1] = Item:new()
+				self.ItemsSpecial[1]:SetTexture([[Interface\AddOns\BGReport\textures\dot-active]])
+				self.ItemsSpecial[1]:SetLabel('...')
+				self.ItemsSpecial[1]:SetScript('self:SetConfiguration("eots")')
+				self:UpdateLabel(self.ItemsSpecial[1], 0, 0)
+			end
+		else
+			-- main eots menu
+			bgr:SetDivider(45)
+			bgr:SetStartAngle(-45)
+			bgr:SetMaxItemCount(4)
+			
+			local buttonAngle = self:GetStartAngle()
+			local level = 0
+			local x, y;
+			x = 0;
+			y = 0;
+			
+			self.gui.frame.texture:SetTexture([[Interface\AddOns\BGReport\textures\4]])
+			self.gui.frame.texture:SetTexCoord(0, 1, 0, 1)
+			
+			bgr:RotateTexture(self.gui.frame.texture, self:GetStartAngle())
+			
+			for index = 1, 4 do
+				self.Items[index] = Item:new(index)
+				self.Items[index]:SetLabel(BUTTON_LABELS[BATTLEGROUND_ID['Eye of the Storm']][level][index])
+				self.Items[index]:SetTexture('Interface\\AddOns\\BGReport\\textures\\4-'..index)
+				self.Items[index]:SetTexCoord(0, 1, 0, 1)
+				bgr:RotateTexture(self.Items[index], self:GetStartAngle())
+				self.Items[index]:SetScript('self:SetConfiguration("eots", '..index..')')
+				
+				if ( self.Items[index]:GetLabel() ~= '' ) then
+					self:UpdateLabel(self.Items[index], x + (itemOffset * cos(-buttonAngle)), y + (itemOffset * sin(-buttonAngle)) )
+					buttonAngle = buttonAngle - (360 / 4)
+				end
+			end
+
+			self.ItemsSpecial[1] = Item:new()
+			self.ItemsSpecial[1]:SetTexture([[Interface\AddOns\BGReport\textures\dot-active]])
+			self.ItemsSpecial[1]:SetLabel('Flag')
+			self.ItemsSpecial[1]:SetScript('self:SetConfiguration("eots", 5)')
+			self:UpdateLabel(self.ItemsSpecial[1], 0, 0)
+		end
 	end
 	
 	self:UpdateSlots()
@@ -1146,14 +1437,7 @@ function bgr:OnMarkingUpdate()
 	lineVec:Normalize()
 	angle = lineVec:GetAngle()
 	
-	-- adjust start position from 3o'clock to more like 4o'clock
-	--[[if ( self:GetMaxItemCount() == 6 ) then
-		angle = angle + self:GetDivider()
-		if ( angle > 360 ) then
-			angle = angle - 360
-		end
-	end]]
-	angle = angle + self:GetStartAngle()
+	angle = angle + abs(self:GetStartAngle())
 	if ( angle > 360 ) then
 		angle = angle - 360
 	elseif ( angle < 0 ) then
@@ -1214,12 +1498,12 @@ bgr.gui.frame:SetWidth(UIParent:GetHeight() - 0.1*UIParent:GetHeight() )
 bgr.gui.frame:SetHeight(UIParent:GetHeight() - 0.1*UIParent:GetHeight() )
 bgr.gui.frame:SetPoint('CENTER', 0, 0)
 bgr.gui.frame:Hide()
---[[bgr.gui.frame:SetBackdrop({
-	bgFile=[[Interface\ChatFrame\ChatFrameBackground]],
-	tile = true,
-	tileSize = 16,
-})
-bgr.gui.frame:SetBackdropColor(0, 0, 0, .6)]]
+--bgr.gui.frame:SetBackdrop({
+--	bgFile=[[Interface\ChatFrame\ChatFrameBackground]],
+--	tile = true,
+--	tileSize = 16,
+--})
+--bgr.gui.frame:SetBackdropColor(0, 0, 0, .6)
 bgr.gui.frame.texture = bgr.gui.frame:CreateTexture(nil, 'BACKGROUND')
 bgr.gui.frame.texture:SetAllPoints()
 bgr.gui.frame.texture:Hide()
@@ -1289,6 +1573,9 @@ function bgr:OnEvent(event, arg1)
 		elseif ( inBattleground == 3 ) then
 			DEFAULT_CHAT_FRAME:AddMessage('<BGReport> changing configuration to AV', 38/255, 115/255, 191/255)
 			self:SetConfiguration('av')
+		elseif ( inBattleground == 4 ) then
+			DEFAULT_CHAT_FRAME:AddMessage('<BGReport> changing configuration to EotS', 38/255, 115/255, 191/255)
+			self:SetConfiguration('eots')
 		else
 			local configuration, level = self:GetConfiguration()
 			if ( configuration ) then
@@ -1306,6 +1593,8 @@ function bgr:OnEvent(event, arg1)
 			self:SetConfiguration('ab')
 		elseif ( inBattleground == 3 ) then
 			self:SetConfiguration('av')
+		elseif ( inBattleground == 4 ) then
+			self:SetConfiguration('eots')
 		else
 			local configuration, level = self:GetConfiguration()
 			if ( configuration ) then
@@ -1331,15 +1620,5 @@ bgr:UpdateSlots()
 if ( BGReport_API ) then
 	DEFAULT_CHAT_FRAME:AddMessage('<BGReport> addons conflict detected.', 1, 0.3, 0.3)
 else
-	--[[BGReport_API = {}
-	BGReport_API.SetConfiguration = function(self, configuration, level)
-		bgr:SetConfiguration(configuration, level)
-	end
-	BGReport_API.OnMarkingStart = function(self)
-		bgr:OnMarkingStart()
-	end
-	BGReport_API.OnMarkingEnd = function(self)
-		bgr:OnMarkingEnd()
-	end]]
 	BGReport_API = bgr
 end

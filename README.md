@@ -1,4 +1,4 @@
-BGReport - a World of Warcraft (1.12.1) AddOn
+BGReport - a World of Warcraft (2.4.3) AddOn
 ===================================================
 
 Installation:
